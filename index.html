@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Course Revision Dashboard — CoCoHub</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f5f5f3;color:#1a1a18;font-size:15px;line-height:1.6;padding:2rem}
+.page{max-width:960px;margin:0 auto}
+
+.header{margin-bottom:2rem;padding-bottom:1.25rem;border-bottom:1px solid #e5e4e0}
+.header-eyebrow{font-size:12px;color:#888780;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px}
+.header-title{font-size:22px;font-weight:500;color:#1a1a18;margin-bottom:4px}
+.header-sub{font-size:13px;color:#888780}
+
+.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.5rem}
+.metric{background:#f1efe8;border-radius:10px;padding:14px 16px}
+.metric-label{font-size:12px;color:#5f5e5a;margin-bottom:4px}
+.metric-value{font-size:26px;font-weight:500;line-height:1.1}
+.mv-default{color:#1a1a18}
+.mv-blue{color:#185FA5}
+.mv-purple{color:#5A2D8A}
+.mv-green{color:#3B6D11}
+.metric-sub{font-size:12px;color:#888780;margin-top:3px}
+
+.stream-panel{background:#fff;border:1px solid #e5e4e0;border-radius:12px;padding:20px 22px;margin-bottom:10px}
+.shared-panel{background:#fff;border:1px solid #e5e4e0;border-radius:12px;padding:20px 22px;margin-bottom:1.5rem}
+.stream-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #f1efe8}
+.stream-label{font-size:13px;font-weight:500;color:#1a1a18}
+.stream-badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:6px;margin-left:8px}
+.badge-blue{background:#E6F1FB;color:#0C447C}
+.badge-purple{background:#F0E8FB;color:#3D1A6B}
+.badge-green{background:#EAF3DE;color:#27500A}
+
+.sub-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.sub-metric{background:#f7f6f2;border-radius:8px;padding:10px 12px}
+.sm-label{font-size:11px;color:#888780;margin-bottom:2px}
+.sm-value{font-size:20px;font-weight:500;line-height:1.1}
+.smv-blue{color:#185FA5}
+.smv-purple{color:#5A2D8A}
+.smv-green{color:#3B6D11}
+.smv-amber{color:#A05C00}
+.smv-gray{color:#888780}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:2rem}
+.chart-label{font-size:13px;font-weight:500;color:#5f5e5a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.bar-label{font-size:13px;color:#1a1a18;width:160px;flex-shrink:0}
+.bar-track{flex:1;height:7px;background:#e8e6df;border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px}
+.bar-count{font-size:13px;color:#5f5e5a;width:24px;text-align:right;flex-shrink:0}
+.bar-note{font-size:12px;color:#888780;margin-top:6px}
+
+.callout{border-radius:8px;padding:12px 16px;margin-top:14px}
+.callout-green{background:#EAF3DE;border:1px solid #C0DD97}
+.callout-title{font-size:12px;font-weight:500;margin-bottom:6px}
+.ct-green{color:#27500A}
+.callout-text{font-size:13px;color:#1a1a18;line-height:1.6}
+.callout-text strong{font-weight:500}
+.callout-italic{font-size:12px;color:#5f5e5a;margin-top:8px;font-style:italic}
+
+.level-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.level-tile{background:#f7f6f2;border-radius:8px;padding:10px 12px}
+.lt-label{font-size:11px;color:#888780;margin-bottom:2px}
+.lt-value{font-size:18px;font-weight:500;color:#3B6D11}
+
+.divider{border:none;border-top:1px solid #e5e4e0;margin:1.5rem 0}
+
+.section-label{font-size:13px;font-weight:500;color:#5f5e5a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px}
+.examples-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.5rem}
+.ex-card{background:#fff;border:1px solid #e5e4e0;border-radius:10px;padding:14px 16px}
+.ex-stream{font-size:10px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px}
+.es-book{color:#185FA5}
+.es-exam{color:#5A2D8A}
+.ex-meta{font-family:"SF Mono","Fira Code",monospace;font-size:11px;color:#888780;margin-bottom:6px}
+.ex-desc{font-size:13px;color:#1a1a18;line-height:1.55;margin-bottom:10px}
+.tag{display:inline-block;font-size:11px;padding:2px 7px;border-radius:4px;margin-right:4px;margin-top:2px}
+.tag-default{background:#f1efe8;color:#5f5e5a}
+.tag-blue{background:#E6F1FB;color:#0C447C}
+.tag-purple{background:#F0E8FB;color:#3D1A6B}
+.tag-amber{background:#FAEEDA;color:#633806}
+.tag-red{background:#FCEBEB;color:#791F1F}
+
+.pending-row{background:#f7f6f2;border:1px dashed #c8c6bc;border-radius:12px;padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;gap:12px}
+.pending-dot{width:8px;height:8px;border-radius:50%;background:#c8c6bc;flex-shrink:0}
+.pending-text{font-size:13px;color:#888780}
+
+.methodology{background:#f1efe8;border-radius:8px;padding:14px 16px}
+.meth-title{font-size:12px;font-weight:500;color:#5f5e5a;margin-bottom:6px}
+.meth-text{font-size:12px;color:#888780;line-height:1.65}
+
+@media(max-width:640px){
+.metric-grid{grid-template-columns:1fr 1fr}
+.sub-metrics{grid-template-columns:1fr 1fr}
+.two-col{grid-template-columns:1fr}
+.examples-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="header">
+  <p class="header-eyebrow">CoCoHub — AI Education Platform</p>
+  <h1 class="header-title">Course Revision Dashboard</h1>
+  <p class="header-sub">Course Content Hub and Job Readiness content changes &nbsp;·&nbsp; Jan – Jun 2026</p>
+</div>
+
+<div class="metric-grid">
+  <div class="metric">
+    <p class="metric-label">Overall courses reworked</p>
+    <p class="metric-value mv-default">55</p>
+    <p class="metric-sub">44 CoCoHub successful publications + 11 Job Readiness PLF courses</p>
+  </div>
+  <div class="metric">
+    <p class="metric-label">CoCoHub successful publications</p>
+    <p class="metric-value mv-blue">44</p>
+    <p class="metric-sub">from Successful Publications JSON</p>
+  </div>
+  <div class="metric">
+    <p class="metric-label">Job Readiness PLF courses</p>
+    <p class="metric-value mv-green">11</p>
+    <p class="metric-sub">live / fully deployed</p>
+  </div>
+  <div class="metric">
+    <p class="metric-label">CoCoHub courses analysed</p>
+    <p class="metric-value mv-default">33</p>
+    <p class="metric-sub">with ≥2 published versions</p>
+  </div>
+</div>
+
+
+<!-- ── STREAM 1: COURSEBOOK ── -->
+<div class="stream-panel">
+  <div class="stream-header">
+    <div>
+      <span class="stream-label">Course book revisions</span>
+      <span class="stream-badge badge-blue">Script XML · CoCoHub</span>
+    </div>
+  </div>
+  <p class="bar-note" style="margin-top:-6px;margin-bottom:14px">Assessment based on 33 CoCoHub courses over the past quarter.</p>
+
+  <div class="sub-metrics">
+    <div class="sub-metric">
+      <p class="sm-label">Courses changed</p>
+      <p class="sm-value smv-blue">14</p>
+    </div>
+    <div class="sub-metric">
+      <p class="sm-label">Individual changes</p>
+      <p class="sm-value smv-blue">20</p>
+    </div>
+    <div class="sub-metric">
+      <p class="sm-label">Major (9+ edits)</p>
+      <p class="sm-value smv-gray">0</p>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <p class="chart-label">Change type</p>
+      <div class="bar-row">
+        <span class="bar-label">Content correction</span>
+        <div class="bar-track"><div class="bar-fill" style="width:35%;background:#185FA5"></div></div>
+        <span class="bar-count">7</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Content addition</span>
+        <div class="bar-track"><div class="bar-fill" style="width:30%;background:#185FA5"></div></div>
+        <span class="bar-count">6</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Paragraph rewrite</span>
+        <div class="bar-track"><div class="bar-fill" style="width:25%;background:#185FA5"></div></div>
+        <span class="bar-count">5</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Citation update</span>
+        <div class="bar-track"><div class="bar-fill" style="width:5%;background:#185FA5"></div></div>
+        <span class="bar-count">1</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Accessibility</span>
+        <div class="bar-track"><div class="bar-fill" style="width:5%;background:#185FA5"></div></div>
+        <span class="bar-count">1</span>
+      </div>
+      <p class="bar-note">20 total across 14 courses</p>
+    </div>
+    <div>
+      <p class="chart-label">Magnitude</p>
+      <div class="bar-row">
+        <span class="bar-label">Minor (1–2 edits)</span>
+        <div class="bar-track"><div class="bar-fill" style="width:86%;background:#3B6D11"></div></div>
+        <span class="bar-count">12</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Moderate (3–8 edits)</span>
+        <div class="bar-track"><div class="bar-fill" style="width:14%;background:#BA7517"></div></div>
+        <span class="bar-count">2</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Major (9+ edits)</span>
+        <div class="bar-track"><div class="bar-fill" style="width:1%;background:#A32D2D"></div></div>
+        <span class="bar-count">0</span>
+      </div>
+      <p class="bar-note">Most changes are targeted, single-file corrections</p>
+    </div>
+  </div>
+
+  <p class="section-label" style="margin-top:18px">Notable examples</p>
+  <div class="examples-grid">
+
+  <div class="ex-card">
+  <p class="ex-stream es-book">Course book</p>
+  <p class="ex-meta">DLBDIPUNSI01  ·  Mar → Jun 2026  ·  1 edit</p>
+  <p class="ex-desc">A self-check answer in a pharmacology unit was factually incorrect. The explanation for why certain psychiatric medications cause increased appetite was corrected: the previous answer cited the wrong receptor mechanism (Histamine and Serotonin antagonism); the correct mechanism — inhibition of the Dopamine and Serotonin systems and activation of the Cannabinoid receptor — was put in its place.</p>
+  <span class="tag tag-blue">Content correction</span><span class="tag tag-default">Minor</span>
+  </div>
+  <div class="ex-card">
+  <p class="ex-stream es-book">Course book</p>
+  <p class="ex-meta">DLBDSMFC01  ·  Dec 2025 → Feb 2026  ·  1 edit</p>
+  <p class="ex-desc">A forest management scenario used to illustrate sustainable yield calculations contained unrealistic numbers. The inherited forest area was corrected from 10,000 to 1,000 hectares, the annual growth rate from 20% to 5%, and the annual clearing volume from 90 to 70 hectares — making the example internally consistent and practically plausible.</p>
+  <span class="tag tag-blue">Content correction</span><span class="tag tag-default">Minor</span>
+  </div>
+  <div class="ex-card">
+  <p class="ex-stream es-book">Course book</p>
+  <p class="ex-meta">DLBPFPAP01  ·  Mar → Jun 2026  ·  1 edit</p>
+  <p class="ex-desc">The introduction to a section on current nursing policy developments was rewritten: a broad framing that mentioned multiple legislative changes since 2020 was replaced with a focused version that concentrates exclusively on the Pflegekammern and the Pflegeberufereformgesetz, matching the scope of the section that follows.</p>
+  <span class="tag tag-blue">Paragraph rewrite</span><span class="tag tag-default">Minor</span>
+  </div>
+
+  </div>
+</div>
+
+<!-- ── STREAM 2: KFK ── -->
+<div class="stream-panel">
+  <div class="stream-header">
+    <div>
+      <span class="stream-label">Exam question revisions</span>
+      <span class="stream-badge badge-purple">KFK question sets · CoCoHub</span>
+    </div>
+  </div>
+  <p class="bar-note" style="margin-top:-6px;margin-bottom:14px">Assessment based on 33 CoCoHub courses over the past quarter.</p>
+
+  <div class="sub-metrics">
+    <div class="sub-metric">
+      <p class="sm-label">Courses changed</p>
+      <p class="sm-value smv-purple">10</p>
+    </div>
+    <div class="sub-metric">
+      <p class="sm-label">Question edits confirmed</p>
+      <p class="sm-value smv-purple">9</p>
+    </div>
+    <div class="sub-metric">
+      <p class="sm-label">Major (9+ edits)</p>
+      <p class="sm-value smv-gray">0</p>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <p class="chart-label">Change type</p>
+      <div class="bar-row">
+        <span class="bar-label">Wording corrected</span>
+        <div class="bar-track"><div class="bar-fill" style="width:78%;background:#5A2D8A"></div></div>
+        <span class="bar-count">7</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Scope or format changed</span>
+        <div class="bar-track"><div class="bar-fill" style="width:22%;background:#5A2D8A"></div></div>
+        <span class="bar-count">2</span>
+      </div>
+      <p class="bar-note">9 confirmed edits across 8 non-error courses</p>
+    </div>
+    <div>
+      <p class="chart-label">Magnitude</p>
+      <div class="bar-row">
+        <span class="bar-label">Minor (1–2 edits)</span>
+        <div class="bar-track"><div class="bar-fill" style="width:100%;background:#3B6D11"></div></div>
+        <span class="bar-count">8</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Moderate (3–8 edits)</span>
+        <div class="bar-track"><div class="bar-fill" style="width:1%;background:#BA7517"></div></div>
+        <span class="bar-count">0</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Major (9+ edits)</span>
+        <div class="bar-track"><div class="bar-fill" style="width:1%;background:#A32D2D"></div></div>
+        <span class="bar-count">0</span>
+      </div>
+      <p class="bar-note">2 courses with confirmed edits excluded from count due to parse errors</p>
+    </div>
+  </div>
+
+  <p class="section-label" style="margin-top:18px">Notable examples</p>
+  <div class="examples-grid">
+
+  <div class="ex-card">
+  <p class="ex-stream es-exam">Exam questions</p>
+  <p class="ex-meta">DLBEWLW01  ·  Mar → May 2026  ·  1 edit</p>
+  <p class="ex-desc">A biochemistry question asking which substance is not a Heteroglykan had a scientifically incorrect answer option: Pektin, which is itself a Heteroglykan, was listed as a distractor. The answer option was corrected to Amylose, which is correctly a Homoglykan, making the question scientifically accurate.</p>
+  <span class="tag tag-purple">Content correction</span><span class="tag tag-default">Minor</span>
+  </div>
+  <div class="ex-card">
+  <p class="ex-stream es-exam">Exam questions</p>
+  <p class="ex-meta">DLBMETDSM01  ·  Apr → Apr 2026  ·  1 edit</p>
+  <p class="ex-desc">An open exam question about globalisation as a challenge for the medical technology industry was rewritten to give students clearer guidance. The revised version explicitly names three dimensions to address — speed of innovation, exploitation of innovation, and competitive position — replacing a broad, open-ended formulation.</p>
+  <span class="tag tag-purple">Wording clarified</span><span class="tag tag-default">Minor</span>
+  </div>
+  <div class="ex-card">
+  <p class="ex-stream es-exam">Exam questions</p>
+  <p class="ex-meta">DLBPAN01  ·  Apr → May 2026  ·  1 edit</p>
+  <p class="ex-desc">A spelling error in a Parkinson's medication question was corrected: the COMT inhibitor Rasagilin was misspelled as Rasagelin in an answer option. The corrected spelling ensures the medication name is accurate for students preparing for their exam.</p>
+  <span class="tag tag-purple">Content correction</span><span class="tag tag-default">Minor</span>
+  </div>
+
+  </div>
+</div>
+
+<!-- ── STREAM 3: PLF ── -->
+<div class="stream-panel">
+  <div class="stream-header">
+    <div>
+      <span class="stream-label">Job Readiness integration — PLF project courses</span>
+      <span class="stream-badge badge-green">PLF · Job Readiness</span>
+    </div>
+  </div>
+
+  <div class="sub-metrics">
+    <div class="sub-metric">
+      <p class="sm-label">Live (fully deployed)</p>
+      <p class="sm-value smv-green">11</p>
+    </div>
+    <div class="sub-metric">
+      <p class="sm-label">In progress / delayed</p>
+      <p class="sm-value smv-amber">4</p>
+    </div>
+    <div class="sub-metric">
+      <p class="sm-label">Level change</p>
+      <p class="sm-value smv-green">+1 to +2</p>
+    </div>
+  </div>
+
+  <p style="font-size:13px;color:#1a1a18;line-height:1.6;margin-bottom:12px">All 11 live courses have been revised to integrate job-readiness competencies into their project task descriptions. 10 courses increased by 1 Job Readiness level; 1 course increased by 2 levels. The 4 in-progress courses are delayed due to MV availability or open organisational questions — no content issues.</p>
+
+  <div class="level-grid">
+    <div class="level-tile">
+      <p class="lt-label">+1 level</p>
+      <p class="lt-value">10 courses</p>
+    </div>
+    <div class="level-tile">
+      <p class="lt-label">+2 levels</p>
+      <p class="lt-value">1 course</p>
+    </div>
+  </div>
+
+  <div class="callout callout-green">
+    <p class="callout-title ct-green">Job Readiness levels explained</p>
+    <p class="callout-text">
+      Job Readiness is IU's framework for measuring how well a course prepares students for AI-era professional practice.<br><br>
+      <strong>Level 0 — Domain Mastery:</strong> Learning objectives focused on foundational knowledge and skills within the discipline. No job-readiness or AI integration.<br>
+      <strong>Level 1 — Domain + Professional Mode or AI Fluency:</strong> Adds either one professional mode or basic AI competencies (prompting, verifying outputs, understanding limitations).<br>
+      <strong>Level 2 — Domain + Mode + AI:</strong> Adds learning objectives for using AI to strengthen a specific professional mode in practice.<br>
+      <strong>Level 3 — Domain + Multiple Modes + AI:</strong> Adds meta-cognitive skills for switching between professional modes and calibrating AI use for each context.<br>
+      <strong>Level 4 — Full Integration:</strong> Students fluidly integrate domain expertise, mode-switching, and AI competencies with professional judgment.
+    </p>
+    <p class="callout-italic">Data as of Jun 2026. Per-course level data will be tracked individually in future reporting cycles.</p>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ── METHODOLOGY ── -->
+<div class="methodology">
+  <p class="meth-title">Scope &amp; methodology</p>
+  <p class="meth-text">Covers CoCoHub course book script XML and KFK exam question sets (Dec 2025 – Jun 2026), plus Job Readiness PLF project courses reported as a separate stream above. Does not include video updates. Course book changes classified by AI analysis of XML diffs between the two most recent published versions per course; only changes with visible text differences are counted. KFK question edits reflect courses where at least one question was revised between published versions — questions are edited by creating a revised version alongside the original; the count reflects old/new pairs with visible content differences. Courses with only structural XML changes and no visible text difference are excluded from the exam question count. Two courses (DLBMETDSM01_E, DLMAIAI01-01) are included in the course count but excluded from confirmed edit totals and examples due to parse errors in their source XML. Magnitude buckets: minor 1–2 edits, moderate 3–8, major 9+.</p>
+</div>
+
+</div>
+</body>
+</html>
